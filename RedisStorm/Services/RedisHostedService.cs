@@ -23,22 +23,22 @@ public class RedisHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await GetSubscribersFromStore();
+        await GetSubscribersFromStore(cancellationToken);
         if (DependencyStore.ShouldScanAssemblyForSubscribers)
         {
-            await GetSubscribersFromAssembly();
+            await GetSubscribersFromAssembly(cancellationToken);
         }
     }
 
-    private async Task GetSubscribersFromStore()
+    private async Task GetSubscribersFromStore(CancellationToken cancellationToken)
     {
         foreach (var channel in DependencyStore.ChannelSubscriberDictionary.Keys)
         {
-            await Subscribe(channel, DependencyStore.ChannelSubscriberDictionary[channel]);
+            await Subscribe(channel, DependencyStore.ChannelSubscriberDictionary[channel], cancellationToken);
         }
     }
 
-    private async Task Subscribe(string channelName, Type subscriberType)
+    private async Task Subscribe(string channelName, Type subscriberType, CancellationToken cancellationToken)
     {
         var messageType = subscriberType.GetMessageTypeOfSubscriberType();
 
@@ -56,11 +56,11 @@ public class RedisHostedService : IHostedService
 
             var rawJson = (string)message!;
             var obj = JsonSerializer.Deserialize(rawJson, messageType);
-            await (Task)subscriberType.GetMethod("Handle")!.Invoke(service, new[] { obj })!;
+            await (Task)subscriberType.GetMethod("Handle")!.Invoke(service, new[] { obj, cancellationToken })!;
         });
     }
 
-    private async Task GetSubscribersFromAssembly()
+    private async Task GetSubscribersFromAssembly(CancellationToken cancellationToken)
     {
         var types = DependencyStore.Assembly
             .GetTypes()
@@ -78,7 +78,7 @@ public class RedisHostedService : IHostedService
             }
 
             var channel = ((RedisChannelAttribute)attribute).Channel;
-            await Subscribe(channel, subscriberType);
+            await Subscribe(channel, subscriberType, cancellationToken);
         }
     }
 

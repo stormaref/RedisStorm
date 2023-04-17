@@ -1,5 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using RedisStorm.Extensions;
 using RedisStorm.Interfaces;
+using RedisStorm.Services;
+using StackExchange.Redis;
+using ISubscriber = RedisStorm.Interfaces.ISubscriber;
 
 namespace RedisStorm.Registration;
 
@@ -10,20 +15,27 @@ public class SubscriberRegistrationFactory
     public SubscriberRegistrationFactory(IServiceCollection serviceCollection)
     {
         _serviceCollection = serviceCollection;
+        _serviceCollection.AddHostedService<RedisHostedService>();
     }
 
-    public void AddSubscriber<TSubscriber, TMessage>(string channelName)
-        where TMessage : class
-        where TSubscriber : class, ISubscriber<TMessage>
+    public void AddConnectionMultiplexer(ConnectionMultiplexer multiplexer)
     {
+        DependencyStore.Multiplexer = multiplexer;
+    }
+
+    public void ConfigSubscriber<TSubscriber>(string channelName)
+        where TSubscriber : class, ISubscriber
+    {
+        var subscriberType = typeof(TSubscriber);
         if (string.IsNullOrWhiteSpace(channelName))
         {
-            throw new ArgumentException($"channel name is null or empty for {typeof(TSubscriber).Name}",
+            throw new ArgumentException($"channel name is null or empty for {subscriberType.Name}",
                 nameof(channelName));
         }
 
-        _serviceCollection.AddScoped<ISubscriber<TMessage>, TSubscriber>();
-        DependencyStore.ChannelSubscriberDictionary[channelName] = typeof(TSubscriber);
+        var messageType = subscriberType.GetMessageTypeOfSubscriberType();
+        _serviceCollection.AddScoped(typeof(ISubscriber<>).MakeGenericType(messageType), subscriberType);
+        DependencyStore.ChannelSubscriberDictionary[channelName] = subscriberType;
     }
 
     public void AddSubscribersFromAssembly()
@@ -36,7 +48,7 @@ public class SubscriberRegistrationFactory
 
         foreach (var subscriberType in types)
         {
-            var messageType = subscriberType.GetGenericArguments().First();
+            var messageType = subscriberType.GetMessageTypeOfSubscriberType();
             _serviceCollection.AddScoped(typeof(ISubscriber<>).MakeGenericType(messageType), subscriberType);
         }
 

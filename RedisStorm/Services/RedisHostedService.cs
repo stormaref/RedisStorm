@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RedisStorm.Attributes;
+using RedisStorm.Extensions;
 using RedisStorm.Interfaces;
 using RedisStorm.Registration;
 using StackExchange.Redis;
@@ -14,9 +15,9 @@ public class RedisHostedService : IHostedService
     private readonly ConnectionMultiplexer _multiplexer;
     private readonly IServiceScopeFactory _scopeFactory;
 
-    public RedisHostedService(ConnectionMultiplexer multiplexer, IServiceScopeFactory scopeFactory)
+    public RedisHostedService(IServiceScopeFactory scopeFactory)
     {
-        _multiplexer = multiplexer;
+        _multiplexer = DependencyStore.Multiplexer ?? throw new Exception("Connection multiplexer is not set!");
         _scopeFactory = scopeFactory;
     }
 
@@ -39,7 +40,7 @@ public class RedisHostedService : IHostedService
 
     private async Task Subscribe(string channelName, Type subscriberType)
     {
-        var messageType = subscriberType.GetGenericArguments().First();
+        var messageType = subscriberType.GetMessageTypeOfSubscriberType();
 
         using var scope = _scopeFactory.CreateScope();
         var service = scope.ServiceProvider

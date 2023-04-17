@@ -2,6 +2,8 @@ using System.Net;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using RedisStorm.Extensions;
+using RedisStorm.Registration;
+using RedisStorm.Test.Subscribers;
 using StackExchange.Redis;
 
 namespace RedisStorm.Test;
@@ -17,14 +19,22 @@ public class TestBase
                 new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6379)
             })
         });
+
         ServiceCollection serviceCollection = new();
+
         serviceCollection.AddRedisStorm(Assembly.GetExecutingAssembly(), factory =>
         {
+            factory.AddPublisher(registrationFactory =>
+            {
+                registrationFactory.SerializationType = SerializationType.MessagePack;
+            });
+
             factory.AddSubscribers(registrationFactory =>
             {
+                registrationFactory.SerializationType = SerializationType.MessagePack;
                 registrationFactory.AddConnectionMultiplexer(multiplexer);
                 registrationFactory.AddSubscribersFromAssembly();
-                // registrationFactory.ConfigSubscriber<SampleSubscriber>("channel");
+                registrationFactory.ConfigSubscriber<SampleSubscriber>("channel");
             });
         });
     }

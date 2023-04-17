@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using MessagePack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RedisStorm.Attributes;
+using RedisStorm.Exceptions;
 using RedisStorm.Extensions;
 using RedisStorm.Interfaces;
 using RedisStorm.Registration;
@@ -17,7 +19,7 @@ public class RedisHostedService : IHostedService
 
     public RedisHostedService(IServiceScopeFactory scopeFactory)
     {
-        _multiplexer = DependencyStore.Multiplexer ?? throw new Exception("Connection multiplexer is not set!");
+        _multiplexer = DependencyStore.Multiplexer ?? throw new ConnectionMultiplexerException();
         _scopeFactory = scopeFactory;
     }
 
@@ -54,10 +56,24 @@ public class RedisHostedService : IHostedService
                 return;
             }
 
-            var rawJson = (string)message!;
-            var obj = JsonSerializer.Deserialize(rawJson, messageType);
+            var raw = (string)message!;
+            var obj = GetMessage(raw, messageType);
             await (Task)subscriberType.GetMethod("Handle")!.Invoke(service, new[] { obj, cancellationToken })!;
         });
+    }
+
+    private static object GetMessage(string raw, Type messageType)
+    {
+        switch (DependencyStore.SubscribingSerializationType)
+        {
+            case SerializationType.Json:
+                return JsonSerializer.Deserialize(raw, messageType)!;
+            case SerializationType.MessagePack:
+                var bytes = Convert.FromBase64String(raw);
+                return MessagePackSerializer.Deserialize(messageType, bytes)!;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     private async Task GetSubscribersFromAssembly(CancellationToken cancellationToken)

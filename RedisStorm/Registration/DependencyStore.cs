@@ -1,7 +1,14 @@
 ﻿using System.Reflection;
+using System.Runtime.Serialization;
 using StackExchange.Redis;
 
 namespace RedisStorm.Registration;
+
+public enum SerializationType
+{
+    Json,
+    MessagePack
+}
 
 public static class DependencyStore
 {
@@ -9,4 +16,6 @@ public static class DependencyStore
     public static Assembly Assembly = null!;
     public static bool ShouldScanAssemblyForSubscribers = false;
     public static ConnectionMultiplexer? Multiplexer = null;
+    public static SerializationType PublishingSerializationType = SerializationType.Json;
+    public static SerializationType SubscribingSerializationType = SerializationType.Json;
 }

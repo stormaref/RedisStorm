@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RedisStorm.Extensions;
 using RedisStorm.Interfaces;
 using RedisStorm.Services;
@@ -16,6 +15,11 @@ public class SubscriberRegistrationFactory
     {
         _serviceCollection = serviceCollection;
         _serviceCollection.AddHostedService<RedisHostedService>();
+    }
+
+    public SerializationType SerializationType
+    {
+        set => DependencyStore.SubscribingSerializationType = value;
     }
 
     public void AddConnectionMultiplexer(ConnectionMultiplexer multiplexer)

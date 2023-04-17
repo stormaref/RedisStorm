@@ -10,6 +10,7 @@
         <Version>1.1.0</Version>
         <PackageTags>redis, pub sub, redis pub sub, pub-sub</PackageTags>
         <License>https://github.com/stormaref/RedisStorm/blob/main/LICENSE</License>
+        <PackageProjectUrl>https://github.com/stormaref/RedisStorm</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>

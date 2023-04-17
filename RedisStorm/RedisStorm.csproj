@@ -7,17 +7,17 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>RedisStorm</Title>
         <Authors>Aref Azizian</Authors>
-        <Version>1.1.0</Version>
+        <Version>1.1.1</Version>
         <PackageTags>redis, pub sub, redis pub sub, pub-sub</PackageTags>
         <License>https://github.com/stormaref/RedisStorm/blob/main/LICENSE</License>
         <PackageProjectUrl>https://github.com/stormaref/RedisStorm</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MessagePack" Version="2.5.108" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
-      <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
+        <PackageReference Include="MessagePack" Version="2.5.108"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0"/>
+        <PackageReference Include="StackExchange.Redis" Version="2.6.104"/>
     </ItemGroup>
 
 </Project>

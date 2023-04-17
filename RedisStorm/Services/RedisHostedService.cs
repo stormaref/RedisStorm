@@ -9,6 +9,7 @@ using RedisStorm.Extensions;
 using RedisStorm.Interfaces;
 using RedisStorm.Registration;
 using StackExchange.Redis;
+using ISubscriber = RedisStorm.Interfaces.ISubscriber;
 
 namespace RedisStorm.Services;
 
@@ -26,18 +27,18 @@ public class RedisHostedService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await GetSubscribersFromStore(cancellationToken);
-        if (DependencyStore.ShouldScanAssemblyForSubscribers)
-        {
-            await GetSubscribersFromAssembly(cancellationToken);
-        }
+        if (DependencyStore.ShouldScanAssemblyForSubscribers) await GetSubscribersFromAssembly(cancellationToken);
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private async Task GetSubscribersFromStore(CancellationToken cancellationToken)
     {
         foreach (var channel in DependencyStore.ChannelSubscriberDictionary.Keys)
-        {
             await Subscribe(channel, DependencyStore.ChannelSubscriberDictionary[channel], cancellationToken);
-        }
     }
 
     private async Task Subscribe(string channelName, Type subscriberType, CancellationToken cancellationToken)
@@ -51,10 +52,7 @@ public class RedisHostedService : IHostedService
 
         await _multiplexer.GetSubscriber().SubscribeAsync(channelName, async (channel, message) =>
         {
-            if (!message.HasValue)
-            {
-                return;
-            }
+            if (!message.HasValue) return;
 
             var raw = (string)message!;
             var obj = GetMessage(raw, messageType);
@@ -81,25 +79,18 @@ public class RedisHostedService : IHostedService
         var types = DependencyStore.Assembly
             .GetTypes()
             .Where(t => t.IsClass &&
-                        t.GetInterfaces().Contains(typeof(Interfaces.ISubscriber)))
+                        t.GetInterfaces().Contains(typeof(ISubscriber)))
             .ToList();
 
         foreach (var subscriberType in types)
         {
             var attribute = subscriberType.GetCustomAttribute(typeof(RedisChannelAttribute));
             if (attribute == null)
-            {
                 throw new Exception(
                     $"(Redis channel attribute ({nameof(RedisChannelAttribute)}) is not set for {subscriberType.Name} type!");
-            }
 
             var channel = ((RedisChannelAttribute)attribute).Channel;
             await Subscribe(channel, subscriberType, cancellationToken);
         }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 }

@@ -32,10 +32,8 @@ public class SubscriberRegistrationFactory
     {
         var subscriberType = typeof(TSubscriber);
         if (string.IsNullOrWhiteSpace(channelName))
-        {
             throw new ArgumentException($"channel name is null or empty for {subscriberType.Name}",
                 nameof(channelName));
-        }
 
         var messageType = subscriberType.GetMessageTypeOfSubscriberType();
         _serviceCollection.AddScoped(typeof(ISubscriber<>).MakeGenericType(messageType), subscriberType);

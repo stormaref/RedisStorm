@@ -31,11 +31,12 @@ public class TestBase
                 registrationFactory.SerializationType = SerializationType.MessagePack;
             });
 
+            // factory.AddConnectionMultiplexer(multiplexer);
+            factory.AddConnectionMultiplexerFromServiceCollection();
+
             factory.AddSubscribers(registrationFactory =>
             {
                 registrationFactory.SerializationType = SerializationType.MessagePack;
-                // registrationFactory.AddConnectionMultiplexer(multiplexer);
-                registrationFactory.AddConnectionMultiplexerFromServiceCollection();
                 registrationFactory.AddSubscribersFromAssembly();
                 registrationFactory.ConfigSubscriber<SampleSubscriber>("channel");
             });

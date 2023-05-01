@@ -18,6 +18,11 @@ Install-Package RedisStorm -Version 1.1.1
 ```csharp
         services.AddRedisStorm(Assembly.GetExecutingAssembly(), factory =>
         {
+        
+            //Add multiplexer below
+            factory.AddConnectionMultiplexer(multiplexer);
+            // factory.AddConnectionMultiplexerFromServiceCollection();
+            
             factory.AddPublisher(registrationFactory =>
             {
                 registrationFactory.SerializationType = SerializationType.MessagePack;
@@ -27,9 +32,6 @@ Install-Package RedisStorm -Version 1.1.1
             {
                 //You can change type to message pack here (default is json)
                 registrationFactory.SerializationType = SerializationType.MessagePack;
-                
-                //Add multiplexer below
-                registrationFactory.AddConnectionMultiplexer(multiplexer); 
                 
                 //You can use below line for automaticaly registring subscribers
                 registrationFactory.AddSubscribersFromAssembly(); 

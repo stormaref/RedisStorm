@@ -32,16 +32,6 @@ public class SubscriberRegistrationFactory
         set => DependencyStore.SubscribingSerializationType = value;
     }
 
-    public void AddConnectionMultiplexer(ConnectionMultiplexer multiplexer)
-    {
-        DependencyStore.Multiplexer = multiplexer;
-    }
-
-    public void AddConnectionMultiplexerFromServiceCollection()
-    {
-        DependencyStore.MultiplexerFromServiceCollection = true;
-    }
-
     public void ConfigSubscriber<TSubscriber>(string channelName)
         where TSubscriber : class, ISubscriber
     {

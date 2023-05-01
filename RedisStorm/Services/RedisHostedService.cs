@@ -20,8 +20,23 @@ public class RedisHostedService : IHostedService
 
     public RedisHostedService(IServiceScopeFactory scopeFactory)
     {
-        _multiplexer = DependencyStore.Multiplexer ?? throw new ConnectionMultiplexerException();
         _scopeFactory = scopeFactory;
+        _multiplexer = GetMultiplexer();
+    }
+
+    public RedisHostedService(IServiceScopeFactory scopeFactory, ConnectionMultiplexer multiplexer)
+    {
+        _scopeFactory = scopeFactory;
+        _multiplexer = multiplexer;
+    }
+
+    private ConnectionMultiplexer GetMultiplexer()
+    {
+        if (!DependencyStore.MultiplexerFromServiceCollection)
+            return DependencyStore.Multiplexer ?? throw new ConnectionMultiplexerException();
+
+        using var scope = _scopeFactory.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<ConnectionMultiplexer>();
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

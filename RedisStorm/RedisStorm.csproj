@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>RedisStorm</Title>
         <Authors>Aref Azizian</Authors>
-        <Version>1.1.1</Version>
+        <Version>1.2.0</Version>
         <PackageTags>redis pub sub pub-sub subscribe StackExchange.Redis StackExchange</PackageTags>
         <License>https://github.com/stormaref/RedisStorm/blob/main/LICENSE</License>
         <PackageProjectUrl>https://github.com/stormaref/RedisStorm</PackageProjectUrl>

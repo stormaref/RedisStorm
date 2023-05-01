@@ -22,6 +22,8 @@ public class TestBase
 
         ServiceCollection serviceCollection = new();
 
+        serviceCollection.AddSingleton(multiplexer);
+
         serviceCollection.AddRedisStorm(Assembly.GetExecutingAssembly(), factory =>
         {
             factory.AddPublisher(registrationFactory =>
@@ -32,7 +34,8 @@ public class TestBase
             factory.AddSubscribers(registrationFactory =>
             {
                 registrationFactory.SerializationType = SerializationType.MessagePack;
-                registrationFactory.AddConnectionMultiplexer(multiplexer);
+                // registrationFactory.AddConnectionMultiplexer(multiplexer);
+                registrationFactory.AddConnectionMultiplexerFromServiceCollection();
                 registrationFactory.AddSubscribersFromAssembly();
                 registrationFactory.ConfigSubscriber<SampleSubscriber>("channel");
             });

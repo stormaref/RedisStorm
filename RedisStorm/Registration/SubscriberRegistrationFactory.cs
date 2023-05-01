@@ -14,7 +14,17 @@ public class SubscriberRegistrationFactory
     public SubscriberRegistrationFactory(IServiceCollection serviceCollection)
     {
         _serviceCollection = serviceCollection;
-        _serviceCollection.AddHostedService<RedisHostedService>();
+        if (DependencyStore.MultiplexerFromServiceCollection)
+        {
+            _serviceCollection.AddHostedService<RedisHostedService>(provider =>
+                new RedisHostedService(provider.GetRequiredService<IServiceScopeFactory>(),
+                    provider.GetRequiredService<ConnectionMultiplexer>()));
+        }
+        else
+        {
+            _serviceCollection.AddHostedService<RedisHostedService>(provider =>
+                new RedisHostedService(provider.GetRequiredService<IServiceScopeFactory>()));
+        }
     }
 
     public SerializationType SerializationType
@@ -25,6 +35,11 @@ public class SubscriberRegistrationFactory
     public void AddConnectionMultiplexer(ConnectionMultiplexer multiplexer)
     {
         DependencyStore.Multiplexer = multiplexer;
+    }
+
+    public void AddConnectionMultiplexerFromServiceCollection()
+    {
+        DependencyStore.MultiplexerFromServiceCollection = true;
     }
 
     public void ConfigSubscriber<TSubscriber>(string channelName)

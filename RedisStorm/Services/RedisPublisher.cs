@@ -20,6 +20,11 @@ public class RedisPublisher : IRedisPublisher
         _subscriber = DependencyStore.Multiplexer?.GetSubscriber() ?? throw new ConnectionMultiplexerException();
     }
 
+    public RedisPublisher(IConnectionMultiplexer multiplexer)
+    {
+        _subscriber = multiplexer.GetSubscriber();
+    }
+
     public async Task Publish<TMessage>(string channel, TMessage message)
     {
         switch (DependencyStore.PublishingSerializationType)

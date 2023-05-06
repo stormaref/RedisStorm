@@ -10,7 +10,7 @@ This is a simple wrapper for StackExchange.Redis that would make using redis pub
 # Installation
 ## Using package manager:
 ```
-Install-Package RedisStorm -Version 1.1.1
+Install-Package RedisStorm -Version 1.2.2
 ```
 
 # Usage/Examples

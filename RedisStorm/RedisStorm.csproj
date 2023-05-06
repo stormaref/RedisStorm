@@ -7,17 +7,24 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>RedisStorm</Title>
         <Authors>Aref Azizian</Authors>
-        <Version>1.2.1</Version>
+        <Version>1.2.2</Version>
         <PackageTags>redis pub sub pub-sub subscribe StackExchange.Redis StackExchange</PackageTags>
         <License>https://github.com/stormaref/RedisStorm/blob/main/LICENSE</License>
         <PackageProjectUrl>https://github.com/stormaref/RedisStorm</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>Simple wrapper for StackExchange.Redis that makes pub sub easier</Description>
+        <RepositoryUrl>https://github.com/stormaref/RedisStorm</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="2.5.108"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="StackExchange.Redis" Version="2.6.104"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MessagePack" Version="2.5.108" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
     </ItemGroup>
 
 </Project>
